@@ -2,10 +2,10 @@ const express = require('express');
 const { userModel, voteModel} = require('../models/model');
 const { signUpAuth, signInAuth } = require('../middlewares/userAuth');
 const jwt = require('jsonwebtoken');
+const { authenticate } = require('../middlewares/auth');
 const JWT_SECRET = "suvesh298";
 
 const Router = express.Router;
-
 const userRouter = Router();
 
 userRouter.post('/signup', signUpAuth, async (req, res)=>{
@@ -14,8 +14,9 @@ userRouter.post('/signup', signUpAuth, async (req, res)=>{
     try{
         await userModel.create({
             aadharNo,
-            password
-        })
+            password,
+            role: 'user'
+        });
         res.status(201).json({message: "User successfully signed-up."})
     }
     catch(error){
@@ -30,13 +31,13 @@ userRouter.post('/signin', async (req, res)=>{
     const password = req.body.password;
 
     try{
-        const response = await userModel.findOne({
+        const user = await userModel.findOne({
             aadharNo,
-            password
-        })
-        if(response){
-            const token = jwt.sign({id:response._id},JWT_SECRET);
-            // res.header.token = token;
+            password,
+            role: 'user'
+        });
+        if(user){
+            const token = jwt.sign({id:user._id},JWT_SECRET);
             res.status(201).json({
                 message: "User successfully signed-in.",
                 token: token
@@ -53,18 +54,14 @@ userRouter.post('/signin', async (req, res)=>{
         })
     }
 })
-userRouter.put('/change-password', signInAuth, async (req, res)=>{
-    const aadharNo = req.body.aadharNo;
-    const password = req.body.password;
+userRouter.put('/change-password', authenticate, async (req, res)=>{
+    const userId = req.userId;
+    const oldPassword = req.body.oldPassword;
     const newPassword = req.body.newPassword
 
     try{
-        const user = await userModel.findOne(
-            {
-                aadharNo,
-                password
-            }
-        );
+        const user = await userModel.findById(userId);
+        
         if(!user) res.status(400).json({message: "Wrong credentials."});
         user.password = newPassword;
         await user.save();
@@ -77,9 +74,9 @@ userRouter.put('/change-password', signInAuth, async (req, res)=>{
         })
     }
 })
-userRouter.post('/vote', signInAuth, async (req, res)=>{
+userRouter.post('/vote', authenticate, async (req, res)=>{
     const condidateId = req.body.condidateId;
-    const userId = req.headers.userId;
+    const userId = req.userId;
 
     try{
         const found = await voteModel.findOne({userId});

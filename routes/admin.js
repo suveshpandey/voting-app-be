@@ -1,21 +1,22 @@
 const express = require('express');
-const { adminModel, condidateModel } = require('../models/model');
+const { adminModel, condidateModel, userModel } = require('../models/model');
 const { signUpAuth, signInAuth } = require('../middlewares/adminAuth')
+const { authenticate, isAdmin } = require('../middlewares/auth');
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = "suvesh298";
 
 const Router = express.Router;
-
 const adminRouter = Router();
 
 adminRouter.post('/signup', signUpAuth, async (req, res)=>{
     const aadharNo = req.body.aadharNo;
     const password = req.body.password;
     try{
-        await adminModel.create({
+        await userModel.create({
             aadharNo,
-            password
-        })
+            password,
+            role: 'admin'  //explicitly set role as admin.
+        });
         res.status(201).json({message: "Admin successfully signed-up."})
     }
     catch(error){
@@ -30,42 +31,40 @@ adminRouter.post('/signin', async (req, res)=>{
     const password = req.body.password;
 
     try{
-        const response = await adminModel.findOne({
+        const admin = await userModel.findOne({
             aadharNo : aadharNo,
-            password : password
+            password : password,
+            role: 'admin'
         });
-        if(response){
-            const token = jwt.sign({id : response._id},JWT_SECRET);
+        if(admin){
+            const token = jwt.sign({id : admin._id},JWT_SECRET);
             res.status(201).json({
                 message: "Admin successfully signed-in.",
                 token: token
             })
         }
         else{
-            res.status(404).json({message: "Wrong credentials"})
+            res.status(404).json({message: "Wrong credentials, or not an admin."})
         }
     }
     catch(error){
         res.status(500).json({
             message: "Some error occured while signing-in.",
             error: error.message
-        })
+        });
     }
-})
-adminRouter.post('/create-condidate', signInAuth, async (req, res)=>{
-    const adminId = req.adminId;
-    
+});
+adminRouter.post('/create-condidate', authenticate, isAdmin, async (req, res)=>{
     const name = req.body.name;
     const party = req.body.party;
-    const votes = req.body.votes || 0;
-    const creatorId = adminId;
+    const creatorId = req.user._id;
 
     try{
         await condidateModel.create({
             name,
             party,
-            votes,
-            creatorId
+            creatorId,
+            votes: 0
         })
         res.status(201).json({message: "Condidate is  added successfully."})
     }

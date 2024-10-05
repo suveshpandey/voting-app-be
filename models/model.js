@@ -3,15 +3,16 @@ const Schema = mongoose.Schema;
 const ObjectId = mongoose.ObjectId;
 
 console.log("connected to db.");
-mongoose.connect("mongodb+srv://adminSuvesh:suveshmongo298@cluster0.y0ux6.mongodb.net/voting-app-backend-2");
+mongoose.connect("mongodb+srv://adminSuvesh:suveshmongo298@cluster0.y0ux6.mongodb.net/voting-app-database");
 
-const adminSchema = new Schema ({
-    aadharNo: {type: String, required: true, unique: true},
-    password: {type: String, required: true}
-})
+// const adminSchema = new Schema ({
+//     aadharNo: {type: String, required: true, unique: true},
+//     password: {type: String, required: true}
+// })
 const userSchema = new Schema ({
     aadharNo: {type: String, required: true, unique: true},
-    password: {type: String, required: true}
+    password: {type: String, required: true},
+    role: {type: String, enum: ['admin', 'user'], default: 'user'}
 })
 const condidateSchema = new Schema ({
     name: {type: String, required: true},
@@ -24,13 +25,13 @@ const voteSchema = new Schema ({
     userId : {type : ObjectId, unique : true}
 })
 
-const adminModel = mongoose.model('Admin', adminSchema);
+// const adminModel = mongoose.model('Admin', adminSchema);
 const userModel = mongoose.model('User', userSchema);
 const condidateModel = mongoose.model('Condidate', condidateSchema);
 const voteModel = mongoose.model('Vote', voteSchema);
 
 module.exports = {
-    adminModel: adminModel,
+    // adminModel: adminModel,
     userModel: userModel,
     condidateModel: condidateModel,
     voteModel: voteModel

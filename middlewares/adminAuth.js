@@ -1,12 +1,13 @@
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = "suvesh298";
-const {adminModel} = require('../models/model');
+// const {adminModel} = require('../models/model');
+const {userModel} = require('../models/model');
 
 async function signUpAuth(req, res, next){
     const aadharNo = req.body.aadharNo;
     const password = req.body.password;
 
-    const response = await adminModel.findOne({aadharNo});
+    const response = await userModel.findOne({aadharNo});
 
     if(!response){
         next();
