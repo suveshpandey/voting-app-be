@@ -16,6 +16,7 @@ const userSchema = new Schema ({
 const condidateSchema = new Schema ({
     name: {type: String, required: true},
     party: {type: String, required: true},
+    creatorId: {type: String, required: true},
     votes: {type: Number}
 })
 const voteSchema = new Schema ({

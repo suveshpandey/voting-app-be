@@ -31,12 +31,11 @@ adminRouter.post('/signin', async (req, res)=>{
 
     try{
         const response = await adminModel.findOne({
-            aadharNo,
-            password
-        })
+            aadharNo : aadharNo,
+            password : password
+        });
         if(response){
-            const token = jwt.sign({id:response._id},JWT_SECRET);
-            // res.header.token = token;
+            const token = jwt.sign({id : response._id},JWT_SECRET);
             res.status(201).json({
                 message: "Admin successfully signed-in.",
                 token: token
@@ -54,15 +53,19 @@ adminRouter.post('/signin', async (req, res)=>{
     }
 })
 adminRouter.post('/create-condidate', signInAuth, async (req, res)=>{
+    const adminId = req.adminId;
+    
     const name = req.body.name;
     const party = req.body.party;
     const votes = req.body.votes || 0;
+    const creatorId = adminId;
 
     try{
         await condidateModel.create({
             name,
             party,
-            votes
+            votes,
+            creatorId
         })
         res.status(201).json({message: "Condidate is  added successfully."})
     }

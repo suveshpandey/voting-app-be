@@ -18,6 +18,7 @@ async function signUpAuth(req, res, next){
 async function signInAuth(req, res, next){
     const token = req.headers.token;
     const decodedData = jwt.verify(token, JWT_SECRET);
+    
     if(decodedData){
         req.adminId = decodedData.id;
         next();
