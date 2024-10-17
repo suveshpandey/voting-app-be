@@ -1,12 +1,11 @@
-This is a basic backed project created for learning purpose.
-Technologies used -> node, express, mongodb
+This is a basic backend project created for learning purpose.
+Technologies used -> Node.js, Express.js, Mongo DB
 
 -> Run the project :
 1 - npm init
 2 - npm install express
 3 - npm install jsonwebtoken
 4 - npm install mongoose
-
 
 Voting app functionality:
 1. user sign up/in     ->done
